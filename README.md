@@ -39,7 +39,8 @@ Prometheus is exposed on Windows at `localhost:9091`
 - [x] Verify Prometheus and RHEL targets are UP.
 - [ ] Deploy Grafana.
 - [ ] Build a monitoring dashboard.
-- [ ] Document troubleshooting incidents.
+- [x] Document troubleshooting incidents.
+- [x] Capture Prometheus target status screenshot.
 
 ## Repository Structure
 
