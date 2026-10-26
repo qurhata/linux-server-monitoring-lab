@@ -1,0 +1,16 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Temporary and generated files
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+
+# Local monitoring data
+prometheus-data/
+grafana-data/
