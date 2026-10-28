@@ -1,0 +1,61 @@
+groups:
+  - name: linux-server-alerts
+    rules:
+      - alert: PrometheusTargetDown
+        expr: up{job="rhel-server"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "RHEL server target is down"
+          description: "Prometheus cannot scrape the RHEL Node Exporter target."
+
+      - alert: HighCPUUsage
+        expr: |
+          100 * (1 - avg by (instance) (
+            rate(node_cpu_seconds_total{job="rhel-server", mode="idle"}[5m])
+          )) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on RHEL server"
+          description: "CPU utilization has remained above 80% for 5 minutes."
+
+      - alert: HighMemoryUsage
+        expr: |
+          100 * (
+            1 -
+            node_memory_MemAvailable_bytes{job="rhel-server"}
+            /
+            node_memory_MemTotal_bytes{job="rhel-server"}
+          ) > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage on RHEL server"
+          description: "Memory utilization has remained above 85% for 5 minutes."
+
+      - alert: HighRootFilesystemUsage
+        expr: |
+          100 * (
+            1 -
+            node_filesystem_avail_bytes{
+              job="rhel-server",
+              mountpoint="/",
+              fstype!~"tmpfs|overlay|squashfs"
+            }
+            /
+            node_filesystem_size_bytes{
+              job="rhel-server",
+              mountpoint="/",
+              fstype!~"tmpfs|overlay|squashfs"
+            }
+          ) > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High root filesystem usage on RHEL server"
+          description: "Root filesystem usage has remained above 85% for 5 minutes."
