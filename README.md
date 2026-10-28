@@ -1,46 +1,67 @@
 # Linux Server Monitoring & Incident Response Lab
 
-## Overview
+A hands-on infrastructure monitoring project focused on Linux server observability, metrics collection, troubleshooting, and incident documentation.
 
-A personal hands-on IT Operations Lab for monitoring a RHEL 10.2 Linux
-server using Prometheus and Node Exporter with Grafana planned for
-visualization.
-
-The project focuses on Linux administration, infrastructure monitoring,
-network connectivity, service management, and troubleshooting.
+The lab uses a RHEL virtual machine, Node Exporter, Prometheus, and Grafana to monitor server resource utilization and network traffic.
 
 ## Objectives
 
-- Deploy Node Exporter as a systemd service on RHEL.
-- Collect Linux server metrics with Prometheus.
-- Visualize infrastructure metrics with Grafana.
-- Document troubleshooting steps and incident findings.
+- Deploy and monitor a Linux server in a virtualized environment.
+- Collect Linux system metrics using Node Exporter.
+- Configure Prometheus to scrape and query server metrics.
+- Build a Grafana dashboard for CPU, memory, disk, and network monitoring.
+- Practice infrastructure troubleshooting and document findings.
+- Establish a foundation for future alerting and incident-response exercises.
 
 ## Architecture
 
-- **Monitored server:** RHEL 10.2
-- **Metrics exporter:** Prometheus Node Exporter
-- **Monitoring system:** Prometheus in Docker Desktop
-- **Configuration and version control:** Ubuntu on WSL 2 and Git
+```text
+RHEL 10.2 Virtual Machine
+  └── Node Exporter :9100
+          │
+          │ Prometheus scrapes metrics
+          ▼
+Prometheus :9090 (container)
+  └── Host port :9091
+          │
+          │ Grafana data source
+          ▼
+Grafana :3000
+  └── Linux Server Monitoring Dashboard
+```
 
-### Metrics flow
+## Technology Stack
 
-RHEL Server → Node Exporter (:9100) → Prometheus (:9090 inside container)
+| Component | Purpose |
+|---|---|
+| RHEL 10.2 | Monitored Linux server |
+| VMware | Virtualization |
+| Node Exporter 1.12.1 | Exposes Linux system metrics |
+| Prometheus | Metrics collection and querying |
+| Grafana | Dashboard visualization |
+| Docker Desktop | Runs Prometheus and Grafana containers |
+| Ubuntu on WSL | Project workspace and Git workflow |
+| Git | Version control and documentation history |
 
-Prometheus is exposed on Windows at `localhost:9091`
+## Monitoring Dashboard
 
-## Current Implementation
+The saved Grafana dashboard visualizes five metrics:
 
-- [x] Install Node Exporter on RHEL 10.2.
-- [x] Configure Node Exporter as a systemd service.
-- [x] Verify network connectivity to Node Exporter.
-- [x] Deploy Prometheus using Docker Desktop.
-- [x] Configure Prometheus scrape targets.
-- [x] Verify Prometheus and RHEL targets are UP.
-- [ ] Deploy Grafana.
-- [ ] Build a monitoring dashboard.
-- [x] Document troubleshooting incidents.
-- [x] Capture Prometheus target status screenshot.
+| Panel | Purpose |
+|---|---|
+| CPU Utilization | Estimates CPU usage from idle CPU time |
+| Memory Utilization | Estimates memory usage from available memory |
+| Root Filesystem Usage | Tracks used space on the root filesystem |
+| Network Receive (RX) | Incoming traffic on `ens160` |
+| Network Transmit (TX) | Outgoing traffic on `ens160` |
+
+### Dashboard Evidence
+
+![Grafana Linux Server Monitoring Dashboard](screenshots/grafana_dashboard.png)
+
+Prometheus target status can also be reviewed in the following screenshot:
+
+![Prometheus Targets](screenshots/prometheus_targets.png)
 
 ## Repository Structure
 
@@ -49,28 +70,47 @@ linux-server-monitoring-lab/
 ├── configs/
 │   └── prometheus.yml
 ├── docs/
+│   └── day-2-grafana-monitoring.md
 ├── incident-reports/
+│   └── day-1-troubleshooting.md
 ├── screenshots/
-├── scripts/
+│   ├── grafana_dashboard.png
+│   └── prometheus_targets.png
 ├── .gitignore
 └── README.md
 ```
 
-## Environment
+## Progress
 
-- Windows with Docker Desktop
-- Ubuntu on WSL 2
-- VMWare virtual machine running RHEL 10.2
-- Prometheus 3.15.1
-- Node Exporter 1.12.1
+- [x] Day 1 — Prometheus deployment and Node Exporter connectivity verification
+- [x] Day 1 — Troubleshooting notes and incident documentation
+- [x] Day 2 — Grafana deployment and Prometheus data source integration
+- [x] Day 2 — CPU, memory, root filesystem, and network traffic dashboard
+- [x] Day 2 — Dashboard screenshots and technical documentation
+- [ ] Day 3 — Alerting and incident-response exercises
 
-## Configuration Notes
+## Accessing the Services
 
-The current Prometheus configuration uses a local lab IP address.
-Update the target address in `configs/prometheus.yml` to match your
-own environment when reproducing this lab.
+When the containers and monitored VM are running:
+
+- Prometheus: `http://localhost:9091`
+- Grafana: `http://localhost:3000`
+
+The RHEL Node Exporter endpoint is configured as `192.168.101.10:9100` in `configs/prometheus.yml`.
+
+These addresses are specific to the current lab environment and may need to be adjusted on another machine.
+
+## Documentation
+
+- [Day 1 — Troubleshooting Report](incident-reports/day-1-troubleshooting.md)
+- [Day 2 — Grafana Monitoring](docs/day-2-grafana-monitoring.md)
+
+## Current Limitations and Next Steps
+
+- The dashboard currently focuses on visualization; alert rules and notification integrations have not yet been implemented.
+- Dashboard persistence depends on the Grafana storage configuration.
+- Future work may include Prometheus alerting, Alertmanager, notification delivery, and simulated incident-response scenarios.
 
 ## Disclaimer
 
-This is a personal learning lab built in a virtualized environment.
-It is not intended as a production-ready monitoring deployment.
+This repository documents a personal learning lab. Configuration details and results reflect the current local environment and should be adapted before use in production.
