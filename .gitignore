@@ -14,3 +14,6 @@ Thumbs.db
 # Local monitoring data
 prometheus-data/
 grafana-data/
+
+# Rendered Alertmanager configuration may contain sensitive values
+configs/alertmanager.yml
