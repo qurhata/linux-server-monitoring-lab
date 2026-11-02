@@ -13,6 +13,7 @@ The lab uses a RHEL virtual machine, Node Exporter, Prometheus, Grafana, and Ale
 - Configure Prometheus alert rules for common server issues.
 - Integrate Alertmanager with Telegram for alert notifications.
 - Practice infrastructure troubleshooting and document findings.
+- Simulate service failures and validate incident detection, notification, and recovery.
 
 ## Architecture
 
@@ -108,6 +109,28 @@ The end-to-end test verified that a temporary Prometheus test alert could be eva
 
 Never commit bot tokens, private credentials, or other sensitive configuration values.
 
+## Incident Response and Alert Validation
+
+A controlled incident-response exercise was conducted to validate the monitoring and notification workflow.
+
+The exercise simulated a Node Exporter service failure on the RHEL server by stopping the systemd service. Prometheus detected the unavailable endpoint, and the `PrometheusTargetDown` alert transitioned from Pending to Firing.
+
+The firing notification was successfully delivered through Telegram. After Node Exporter was restarted, Prometheus detected service recovery and the corresponding resolved notification was also delivered.
+
+The `HighCPUUsage` alert was investigated during the same exercise. It entered Pending during two observed periods but did not reach Firing because the condition was not observed to persist for the configured five-minute duration.
+
+### Incident Response Evidence
+
+Prometheus `PrometheusTargetDown` firing alert:
+
+![PrometheusTargetDown Firing Alert](screenshots/prometheustargetdown_alert.png)
+
+Grafana dashboard during the simulated Node Exporter outage:
+
+![Grafana Dashboard During Incident](screenshots/grafana_dashboard_day4.png)
+
+For the full investigation details, observations, and verification results, see the Day 4 incident-response report.
+
 ## Repository Structure
 
 ```text
@@ -118,7 +141,8 @@ linux-server-monitoring-lab/
 │   └── prometheus.yml
 ├── docs/
 │   ├── day-2-grafana-monitoring.md
-│   └── day-3-prometheus-alerting.md
+│   ├── day-3-prometheus-alerting.md
+│   └── day-4-incident-response.md
 ├── incident-reports/
 │   └── day-1-troubleshooting.md
 ├── scripts/
@@ -128,9 +152,11 @@ linux-server-monitoring-lab/
 │   ├── alertmanager_alerts.png
 │   ├── grafana_dashboard.png
 │   ├── grafana_dashboard_day3.png
+│   ├── grafana_dashboard_day4.png
 │   ├── prometheus_alerts.png
 │   ├── prometheus_targets.png
 │   ├── prometheus_targets_day3.png
+│   ├── prometheustargetdown_alert.png
 │   └── telegram_test_notification.jpeg
 ├── .gitignore
 └── README.md
@@ -149,6 +175,11 @@ The locally rendered Alertmanager configuration and `.env` are intentionally exc
 - [x] Day 3 — Alertmanager deployment and integration
 - [x] Day 3 — Telegram notification integration and end-to-end testing
 - [x] Day 3 — Alert testing, cleanup, and technical documentation
+- [x] Day 4 — Controlled Node Exporter failure simulation
+- [x] Day 4 — Prometheus target-down alert validation
+- [x] Day 4 — Telegram firing and resolved notification verification
+- [x] Day 4 — Service recovery and monitoring restoration
+- [x] Day 4 — High CPU alert investigation and incident documentation
 
 ## Accessing the Services
 
@@ -158,7 +189,7 @@ When the containers and monitored VM are running:
 - Grafana: `http://localhost:3000`
 - Alertmanager: `http://localhost:9093`
 
-The RHEL Node Exporter endpoint is configured as `192.168.101.10:9100` in `configs/prometheus.yml`.
+The RHEL Node Exporter endpoint is configured as `192.168.101.12:9100` in `configs/prometheus.yml`.
 
 These addresses and network settings are specific to the current lab environment and may need to be adjusted on another machine.
 
@@ -167,13 +198,15 @@ These addresses and network settings are specific to the current lab environment
 - [Day 1 — Troubleshooting Report](incident-reports/day-1-troubleshooting.md)
 - [Day 2 — Grafana Monitoring](docs/day-2-grafana-monitoring.md)
 - [Day 3 — Prometheus Alerting and Telegram Notifications](docs/day-3-prometheus-alerting.md)
+- [Day 4 — Incident Response and Alert Validation](docs/day-4-incident-response.md)
 
 ## Current Limitations and Next Steps
 
 - Alert thresholds are initial lab settings and have not been tuned against production workloads.
 - Notification delivery latency requires further investigation; a delay of approximately 3–4 minutes was observed during testing.
-- The lab has verified basic notification delivery but has not yet completed a full simulated incident-response exercise.
-- Future work may include controlled failure injection, recovery verification, and additional operational monitoring scenarios.
+- The exact cause of the CPU utilization spikes observed during Day 4 could not be confirmed.
+- Additional alert scenarios, such as sustained high CPU, memory pressure, and filesystem utilization, have not yet been fully validated through controlled tests.
+- Future improvements may include investigating notification latency, testing additional alert scenarios, and refining monitoring configurations.
 
 ## Disclaimer
 
