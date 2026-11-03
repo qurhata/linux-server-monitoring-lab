@@ -25,11 +25,11 @@ RHEL 10.2 Virtual Machine
         ▼
 Prometheus :9090 (container)
 └── Host port :9091
-        ├── Grafana :3000
-        │   └── Linux Server Monitoring Dashboard
-        │
-        └── Alertmanager :9093
-            └── Telegram Bot Notifications
+    ├── Grafana :3000
+    │   └── Linux Server Monitoring Dashboard
+    │
+    └── Alertmanager :9093
+        └── Telegram Bot Notifications
 ```
 
 Prometheus collects metrics from the RHEL server, evaluates alert rules, and forwards matching alerts to Alertmanager. Alertmanager handles notification routing and sends messages to Telegram.
@@ -142,7 +142,8 @@ linux-server-monitoring-lab/
 ├── docs/
 │   ├── day-2-grafana-monitoring.md
 │   ├── day-3-prometheus-alerting.md
-│   └── day-4-incident-response.md
+│   ├── day-4-incident-response.md
+│   └── troubleshooting-runbook.md
 ├── incident-reports/
 │   └── day-1-troubleshooting.md
 ├── scripts/
@@ -180,6 +181,10 @@ The locally rendered Alertmanager configuration and `.env` are intentionally exc
 - [x] Day 4 — Telegram firing and resolved notification verification
 - [x] Day 4 — Service recovery and monitoring restoration
 - [x] Day 4 — High CPU alert investigation and incident documentation
+- [x] Day 5 — Monitoring stack health check
+- [x] Day 5 — Prometheus configuration and alert-rule validation
+- [x] Day 5 — Review of alert-rule conditions and validation status
+- [x] Day 5 — Troubleshooting runbook creation and documentation
 
 ## Accessing the Services
 
@@ -189,7 +194,7 @@ When the containers and monitored VM are running:
 - Grafana: `http://localhost:3000`
 - Alertmanager: `http://localhost:9093`
 
-The RHEL Node Exporter endpoint is configured as `192.168.101.12:9100` in `configs/prometheus.yml`.
+The RHEL Node Exporter endpoint is currently configured as `192.168.101.13:9100` in `configs/prometheus.yml`.
 
 These addresses and network settings are specific to the current lab environment and may need to be adjusted on another machine.
 
@@ -199,13 +204,16 @@ These addresses and network settings are specific to the current lab environment
 - [Day 2 — Grafana Monitoring](docs/day-2-grafana-monitoring.md)
 - [Day 3 — Prometheus Alerting and Telegram Notifications](docs/day-3-prometheus-alerting.md)
 - [Day 4 — Incident Response and Alert Validation](docs/day-4-incident-response.md)
+- [Troubleshooting Runbook](docs/troubleshooting-runbook.md)
 
 ## Current Limitations and Next Steps
 
 - Alert thresholds are initial lab settings and have not been tuned against production workloads.
 - Notification delivery latency requires further investigation; a delay of approximately 3–4 minutes was observed during testing.
 - The exact cause of the CPU utilization spikes observed during Day 4 could not be confirmed.
-- Additional alert scenarios, such as sustained high CPU, memory pressure, and filesystem utilization, have not yet been fully validated through controlled tests.
+- `HighCPUUsage` did not reach Firing during the Day 4 observation period.
+- `HighMemoryUsage` and `HighRootFilesystemUsage` have not yet been validated through controlled threshold-breach tests.
+- The troubleshooting runbook documents several diagnostic and recovery procedures, but not all scenarios have been independently tested through controlled simulations.
 - Future improvements may include investigating notification latency, testing additional alert scenarios, and refining monitoring configurations.
 
 ## Disclaimer
