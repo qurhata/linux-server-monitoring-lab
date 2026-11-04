@@ -1,6 +1,6 @@
 # Linux Server Monitoring & Incident Response Lab
 
-A hands-on infrastructure monitoring project focused on Linux server observability, metrics collection, alerting, troubleshooting, and incident documentation.
+A hands-on infrastructure monitoring project focused on Linux server observability, metrics collection, alerting, troubleshooting, reliability assessment, and incident documentation.
 
 The lab uses a RHEL virtual machine, Node Exporter, Prometheus, Grafana, and Alertmanager to monitor server resources, visualize metrics, and deliver alert notifications through Telegram.
 
@@ -14,6 +14,7 @@ The lab uses a RHEL virtual machine, Node Exporter, Prometheus, Grafana, and Ale
 - Integrate Alertmanager with Telegram for alert notifications.
 - Practice infrastructure troubleshooting and document findings.
 - Simulate service failures and validate incident detection, notification, and recovery.
+- Develop operational troubleshooting procedures and assess monitoring reliability.
 
 ## Architecture
 
@@ -63,6 +64,8 @@ The Grafana dashboard visualizes five metrics:
 | Network Transmit (TX) | Outgoing traffic on `ens160` |
 
 ### Dashboard Evidence
+
+Grafana Linux Server Monitoring Dashboard:
 
 ![Grafana Linux Server Monitoring Dashboard](screenshots/grafana_dashboard_day3.png)
 
@@ -131,6 +134,84 @@ Grafana dashboard during the simulated Node Exporter outage:
 
 For the full investigation details, observations, and verification results, see the Day 4 incident-response report.
 
+## Operational Troubleshooting and Reliability Assessment
+
+Day 5 focused on monitoring validation and the development of a troubleshooting runbook. Day 6 extended this work through operational readiness checks, troubleshooting procedure validation, and reliability assessment.
+
+### Troubleshooting Runbook
+
+The runbook documents investigation and resolution procedures for six scenarios:
+
+1. Prometheus container unavailable.
+2. Node Exporter or RHEL target down.
+3. Grafana metrics missing.
+4. Alert not triggering.
+5. Telegram notification not received.
+6. CPU metrics missing.
+
+Each scenario follows a structured approach:
+
+- Symptom identification.
+- Investigation.
+- Verification.
+- Resolution.
+
+The procedures distinguish between healthy-state validation, previously tested incident scenarios, and recovery procedures that have not yet been independently simulated.
+
+### Day 6 Operational Readiness
+
+The following components and communication paths were validated:
+
+- Prometheus readiness and runtime configuration.
+- Prometheus scrape targets and Alertmanager registration.
+- Alertmanager readiness, runtime status, and receiver registration.
+- Node Exporter service status and metrics endpoint.
+- Grafana datasource configuration and metrics retrieval.
+- Prometheus alert-rule loading and underlying metric expressions.
+
+All four configured alert rules were loaded successfully and reported healthy status.
+
+Resource utilization during the review:
+
+| Metric | Observed Value | Alert Threshold |
+|---|---:|---:|
+| CPU Usage | 1.45% | 80% |
+| Memory Usage | 77.77% | 85% |
+| Root Filesystem Usage | 36.57% | 85% |
+
+All three resource expressions returned valid metric values. No alert conditions were met during the review.
+
+### Reliability Assessment
+
+The monitoring architecture was reviewed to identify potential single points of failure and persistence limitations.
+
+Key findings:
+
+| Area | Observation | Potential Impact |
+|---|---|---|
+| Host dependency | All monitoring services depend on one Windows host and Docker Desktop environment. | A host-level failure can interrupt the entire monitoring stack. |
+| Prometheus restart policy | Configured as `no`. | No automatic container restart policy is configured. |
+| Grafana restart policy | Configured as `no`. | No automatic container restart policy is configured. |
+| Alertmanager restart policy | Configured as `unless-stopped`. | Automatic restart is configured unless manually stopped. |
+| Prometheus storage | Named volume mounted at `/prometheus`. | Persistent TSDB storage is configured. |
+| Grafana storage | No persistent mounts configured. | Internal database and dashboard data may be lost if the container is removed and recreated. |
+| Alertmanager storage | Named volume mounted at `/alertmanager`. | Persistent storage is configured. |
+
+### Reliability Improvement Opportunities
+
+The assessment identified several areas for future improvement:
+
+- Configure suitable restart policies for Prometheus and Grafana.
+- Implement persistent storage for Grafana internal data.
+- Consider file-based provisioning for Grafana datasources and dashboards.
+- Establish backup and restoration procedures for monitoring data.
+- Evaluate monitoring availability independently of the monitored host.
+- Consider alternative notification channels for external delivery failures.
+
+These findings are documented as recommendations only. No hardening or configuration changes were implemented during Day 6.
+
+For the full assessment, verification evidence, and limitations, see the Day 6 reliability review.
+
 ## Repository Structure
 
 ```text
@@ -143,6 +224,7 @@ linux-server-monitoring-lab/
 │   ├── day-2-grafana-monitoring.md
 │   ├── day-3-prometheus-alerting.md
 │   ├── day-4-incident-response.md
+│   ├── day-6-reliability-review.md
 │   └── troubleshooting-runbook.md
 ├── incident-reports/
 │   └── day-1-troubleshooting.md
@@ -169,7 +251,7 @@ The locally rendered Alertmanager configuration and `.env` are intentionally exc
 
 - [x] Day 1 — Prometheus deployment and Node Exporter connectivity verification
 - [x] Day 1 — Troubleshooting notes and incident documentation
-- [x] Day 2 — Grafana deployment and Prometheus data source integration
+- [x] Day 2 — Grafana deployment and Prometheus datasource integration
 - [x] Day 2 — CPU, memory, root filesystem, and network traffic dashboard
 - [x] Day 2 — Dashboard screenshots and technical documentation
 - [x] Day 3 — Prometheus alert-rule configuration and validation
@@ -185,6 +267,13 @@ The locally rendered Alertmanager configuration and `.env` are intentionally exc
 - [x] Day 5 — Prometheus configuration and alert-rule validation
 - [x] Day 5 — Review of alert-rule conditions and validation status
 - [x] Day 5 — Troubleshooting runbook creation and documentation
+- [x] Day 5 — Security and Git tracking review
+- [x] Day 6 — Operational readiness review
+- [x] Day 6 — Troubleshooting runbook validation
+- [x] Day 6 — Prometheus, Grafana, and Alertmanager verification
+- [x] Day 6 — Alert expression and resource metric validation
+- [x] Day 6 — Single point of failure and persistent storage assessment
+- [x] Day 6 — Reliability recommendations and technical documentation
 
 ## Accessing the Services
 
@@ -204,6 +293,7 @@ These addresses and network settings are specific to the current lab environment
 - [Day 2 — Grafana Monitoring](docs/day-2-grafana-monitoring.md)
 - [Day 3 — Prometheus Alerting and Telegram Notifications](docs/day-3-prometheus-alerting.md)
 - [Day 4 — Incident Response and Alert Validation](docs/day-4-incident-response.md)
+- [Day 6 — Operational Troubleshooting and Reliability Review](docs/day-6-reliability-review.md)
 - [Troubleshooting Runbook](docs/troubleshooting-runbook.md)
 
 ## Current Limitations and Next Steps
@@ -213,8 +303,11 @@ These addresses and network settings are specific to the current lab environment
 - The exact cause of the CPU utilization spikes observed during Day 4 could not be confirmed.
 - `HighCPUUsage` did not reach Firing during the Day 4 observation period.
 - `HighMemoryUsage` and `HighRootFilesystemUsage` have not yet been validated through controlled threshold-breach tests.
+- Prometheus and Grafana do not currently have automatic container restart policies configured.
+- Grafana does not have a persistent volume or bind mount configured.
+- The monitoring stack depends on a single physical host and does not provide high availability.
 - The troubleshooting runbook documents several diagnostic and recovery procedures, but not all scenarios have been independently tested through controlled simulations.
-- Future improvements may include investigating notification latency, testing additional alert scenarios, and refining monitoring configurations.
+- Future improvements may include investigating notification latency, testing additional alert scenarios, implementing persistent storage, and improving container recovery behavior.
 
 ## Disclaimer
 
